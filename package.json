@@ -1,0 +1,11 @@
+{
+  "name": "2023-11-wns-bleu-g1",
+  "version": "1.0.0",
+  "description": "a REPLIT-like",
+  "scripts": {
+    "db": "docker-compose up db",
+    "start": "docker compose up",
+    "stop": "docker compose down",
+    "dev": "docker compose up -d"
+  }
+}
