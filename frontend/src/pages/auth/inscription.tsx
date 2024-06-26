@@ -28,7 +28,15 @@ import { useRouter } from 'next/router';
 import { ApolloError } from '@apollo/client';
 
 const formSchema = z.object({
-  pseudo: z
+  lastName: z
+    .string()
+    .min(2, {
+      message: 'Le pseudo doit contenir au moins 2 caractères.',
+    })
+    .max(50, {
+      message: 'Le pseudo doit contenir au plus 50 caractères.',
+    }),
+  firstName: z
     .string()
     .min(2, {
       message: 'Le pseudo doit contenir au moins 2 caractères.',
@@ -55,7 +63,8 @@ const Inscription = () => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      pseudo: '',
+      lastName: '',
+      firstName: '',
       email: '',
       password: '',
     },
@@ -119,7 +128,8 @@ const Inscription = () => {
       variables: {
         data: {
           email: values.email,
-          pseudo: values.pseudo,
+          lastName: values.lastName,
+          firstName: values.firstName,
           password: values.password,
         },
       },
@@ -142,16 +152,30 @@ const Inscription = () => {
                 <div className="grid gap-2">
                   <FormField
                     control={form.control}
-                    name="pseudo"
+                    name="lastName"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel data-testid="label-pseudo">Pseudo</FormLabel>
+                        <FormLabel data-testid="label-lastName">Nom*</FormLabel>
                         <FormControl>
-                          <Input placeholder="Pseudo" {...field} />
+                          <Input placeholder="Nom" {...field} />
                         </FormControl>
-                        <FormDescription>
-                          Ce sera votre nom public.
-                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <FormField
+                    control={form.control}
+                    name="firstName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel data-testid="label-firstName">
+                          Prénom*
+                        </FormLabel>
+                        <FormControl>
+                          <Input placeholder="Prénom" {...field} />
+                        </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -163,7 +187,9 @@ const Inscription = () => {
                     name="email"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel data-testid="label-email">Email</FormLabel>
+                        <FormLabel data-testid="label-email">
+                          Adresse email*
+                        </FormLabel>
                         <FormControl>
                           <Input placeholder="john.doe@gmail.com" {...field} />
                         </FormControl>
@@ -178,7 +204,7 @@ const Inscription = () => {
                     name="password"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Mot de passe</FormLabel>
+                        <FormLabel>Mot de passe*</FormLabel>
                         <FormControl>
                           <Input
                             placeholder="********"

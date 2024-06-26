@@ -9,13 +9,16 @@ mutation SignUp($data: NewUserInput!) {
   createUser(data: $data) {
     email
     id
-    pseudo
+    firstName
+    lastName
     role
   }
 }
 
 mutation SignIn($data: SigninInput!) {
-  signin(data: $data)
+  signin(data: $data) {
+    role
+  }
 }
 
 mutation Logout {
@@ -26,7 +29,8 @@ query GetUserProfile {
   getUserProfile {
     email
     id
-    pseudo
+    firstName
+    lastName
     role
   }
 }

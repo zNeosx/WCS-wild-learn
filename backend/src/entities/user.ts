@@ -1,18 +1,16 @@
 import { hash } from "argon2";
-import { IsEmail, IsStrongPassword, Length, Matches } from "class-validator";
+import { IsEmail, Matches } from "class-validator";
 import { Field, InputType, ObjectType } from "type-graphql";
 import {
 	BaseEntity,
 	BeforeInsert,
 	Column,
 	Entity,
+	OneToMany,
 	PrimaryGeneratedColumn,
 } from "typeorm";
-
-export enum UserRole {
-	ADMIN = "admin",
-	VISITOR = "visitor",
-}
+import { Role } from "../enums/role.enums";
+import Course from "./course";
 
 @Entity()
 @ObjectType()
@@ -28,20 +26,28 @@ export default class User extends BaseEntity {
 	@Field()
 	id: string;
 
-	@Column({ enum: UserRole, default: UserRole.VISITOR })
-	@Field()
-	role: UserRole;
+	@Column({ enum: Role, default: Role.STUDENT })
+	@Field(() => Role)
+	role: Role;
 
 	@Column()
-	@Field()
+	@Field(() => String)
 	email: string;
 
 	@Column()
-	@Field()
-	pseudo: string;
+	@Field(() => String)
+	lastName: string;
+
+	@Column()
+	@Field(() => String)
+	firstName: string;
 
 	@Column()
 	hashedPassword: string;
+
+	@OneToMany(() => Course, (course) => course.user, { cascade: true })
+	@Field(() => [Course])
+	courses: Course[];
 }
 
 @InputType()
@@ -50,9 +56,11 @@ export class NewUserInput {
 	@Field()
 	email: string;
 
-	@Length(2, 20)
 	@Field()
-	pseudo: string;
+	lastName: string;
+
+	@Field()
+	firstName: string;
 
 	@Matches(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$/, {
 		message: "Password too weak",
@@ -61,7 +69,7 @@ export class NewUserInput {
 	password: string;
 
 	@Field({ nullable: true })
-	role: UserRole;
+	role: Role;
 }
 
 @InputType()
