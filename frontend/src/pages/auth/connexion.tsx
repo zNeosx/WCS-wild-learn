@@ -23,7 +23,11 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { useRouter } from 'next/router';
 import { ApolloError } from '@apollo/client';
-import { useSignInMutation } from '@/graphql/generated/schema';
+import {
+  GetUserProfileDocument,
+  useSignInMutation,
+} from '@/graphql/generated/schema';
+import { APP_ROUTES } from '@/constants';
 
 const formSchema = z.object({
   email: z
@@ -57,8 +61,13 @@ const Connexion = () => {
       // 	title: "Connexion réussie",
       // 	className: "text-success",
       // });
-      router.push('/');
+      router.push(APP_ROUTES[data.signin.role].afterLogin ?? '/');
     },
+    refetchQueries: [
+      {
+        query: GetUserProfileDocument,
+      },
+    ],
     onError: (err: ApolloError) => {
       console.error(err);
       // if (err.message.includes("not register")) {

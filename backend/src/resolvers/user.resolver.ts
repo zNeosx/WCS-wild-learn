@@ -1,15 +1,14 @@
 import { Arg, Authorized, Ctx, Mutation, Query } from "type-graphql";
 import User, { NewUserInput, SigninInput } from "../entities/user";
+import { Role } from "../enums/role.enums";
+import { Context } from "../interfaces/auth";
 import { GraphQLError } from "graphql";
 import { verify } from "argon2";
+import env from "../env";
 import jwt from "jsonwebtoken";
 
-import env from "../env";
-import { Context } from "../interfaces/auth";
-import { UserRole } from "../entities/user";
-
 export default class UserResolver {
-	@Authorized([UserRole.ADMIN])
+	@Authorized([Role.ADMIN, Role.TEACHER])
 	@Query(() => [User])
 	async users() {
 		// SELECT * FROM User;
@@ -18,43 +17,23 @@ export default class UserResolver {
 		return users;
 	}
 
-	@Authorized([UserRole.VISITOR])
+	@Authorized([Role.STUDENT, Role.TEACHER])
 	@Query(() => User)
 	async getUserProfile(@Ctx() ctx: Context) {
 		if (!ctx.currentUser) throw new GraphQLError("you need to be logged in!");
 		return User.findOneOrFail({
 			where: { id: ctx.currentUser.id },
-			select: ["id", "pseudo", "email", "role"],
+			select: ["id", "firstName", "lastName", "email", "role"],
 		});
 	}
 
 	@Mutation(() => User)
 	async createUser(@Arg("data", { validate: true }) data: NewUserInput) {
-		if (!data.email) {
-			throw new GraphQLError("email is missing but require");
-		}
-
-		if (!data.pseudo) {
-			throw new GraphQLError("pseudo is missing but require");
-		}
-
-		if (!data.password) {
-			throw new GraphQLError("password is missing but require");
-		}
-
 		// SELECT * FROM User WHERE email=data.email
 		const userAlreadyExist = await User.findOneBy({ email: data.email });
-		// SELECT * FROM User WHERE pseudo=data.pseudo
-		const pseudoAlreadyExist = await User.findOneBy({
-			pseudo: data.pseudo.toLocaleLowerCase(),
-		});
 
 		if (userAlreadyExist) {
 			throw new GraphQLError(`user: ${data.email} already exist`);
-		}
-
-		if (pseudoAlreadyExist) {
-			throw new GraphQLError(`pseudo: ${data.pseudo} is already taken`);
 		}
 
 		const newUser = new User();
@@ -64,8 +43,11 @@ export default class UserResolver {
 		return await newUser.save();
 	}
 
-	@Mutation(() => String)
-	async signin(@Arg("data") data: SigninInput, @Ctx() ctx: Context) {
+	@Mutation(() => User)
+	async signin(
+		@Arg("data", { validate: true }) data: SigninInput,
+		@Ctx() ctx: Context
+	) {
 		// SELECT * FROM User WHERE email=data.email
 		const user = await User.findOneBy({ email: data.email });
 
@@ -82,7 +64,9 @@ export default class UserResolver {
 		const token = jwt.sign(
 			{
 				userId: user.id,
-				pseudo: user.pseudo,
+				firstName: user.firstName,
+				lastName: user.lastName,
+				role: user.role,
 				email: user.email,
 			},
 			env.JWT_PRIVATE_KEY,
@@ -95,7 +79,7 @@ export default class UserResolver {
 			secure: env.NODE_ENV === "production",
 		});
 
-		return token;
+		return user;
 	}
 
 	@Mutation(() => String)

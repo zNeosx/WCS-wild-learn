@@ -1,20 +1,18 @@
-import { Compass, Layout } from 'lucide-react';
+import { APP_ROUTES } from '@/constants';
+import { Role } from '@/graphql/generated/schema';
+import { useRouter } from 'next/router';
 import { SidebarItem } from './sidebar-item';
 
-const guestRoutes = [
-  {
-    icon: Layout,
-    label: 'Tableau de bord',
-    href: '/',
-  },
-  {
-    icon: Compass,
-    label: 'Rechercher',
-    href: '/rechercher',
-  },
-];
 const SidebarRoutes = () => {
-  const routes = guestRoutes;
+  const { pathname } = useRouter();
+
+  const role = pathname?.includes('/enseignant')
+    ? Role.TEACHER
+    : pathname?.includes('/admin')
+      ? Role.ADMIN
+      : Role.STUDENT;
+
+  const routes = APP_ROUTES[role].sidebarRoutes;
 
   return (
     <div className="flex flex-col w-full">

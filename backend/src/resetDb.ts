@@ -1,5 +1,6 @@
 import db from "./db";
-import User, { UserRole } from "./entities/user";
+import User from "./entities/user";
+import { Role } from "./enums/role.enums";
 
 export const cleanDb = async () => {
 	const runner = db.createQueryRunner();
@@ -28,29 +29,55 @@ const main = async () => {
 
 	await cleanDb();
 
-	const user = new User();
+	const student1 = new User();
 
-	Object.assign(user, {
-		email: "test@test.test",
-		password: "Test123456!",
-		pseudo: "Test",
+	Object.assign(student1, {
+		lastName: "DOE",
+		firstName: "John",
+		email: "john.doe@gmail.com",
+		password: "JohnDoe@01",
 	});
 
-	await user.save();
+	await student1.save();
+
+	const student2 = new User();
+
+	Object.assign(student2, {
+		lastName: "LOU",
+		firstName: "Chloé",
+		email: "chloe.lou@gmail.com",
+		password: "ChloeLou@02",
+	});
+
+	await student2.save();
+
+	const teacher1 = new User();
+
+	Object.assign(teacher1, {
+		lastName: "JOCELINE",
+		firstName: "Inès",
+		email: "joceline.ines@gmail.com",
+		password: "JocelineInes@01",
+		role: Role.TEACHER,
+	});
+
+	await teacher1.save();
+
 	const admin = new User();
 
 	Object.assign(admin, {
+		lastName: "ADMIN",
+		firstName: "Admin",
 		email: "admin@gmail.com",
 		password: "Admin@123",
-		pseudo: "Admin",
-		role: UserRole.ADMIN,
+		role: Role.ADMIN,
 	});
 
 	await admin.save();
 
 	await db.destroy();
 
-	console.log(`${user.email} created`);
+	console.log("reset db successful");
 };
 
 main();

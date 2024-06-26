@@ -1,0 +1,46 @@
+mutation CreateCourse($data: NewCourseInput!) {
+  createCourse(data: $data) {
+    id
+    isPublished
+    price
+    title
+    updatedAt
+    createdAt
+    description
+    imageUrl
+  }
+}
+
+query GetCourseById($getCourseByIdId: String!) {
+  getCourseById(id: $getCourseByIdId) {
+    id
+    imageUrl
+    isPublished
+    price
+    title
+    updatedAt
+    description
+    createdAt
+    category {
+      id
+      name
+    }
+  }
+}
+
+mutation UpdateCourse($data: UpdateCourseInput!, $updateCourseId: String!) {
+  updateCourse(data: $data, id: $updateCourseId) {
+    id
+    imageUrl
+    isPublished
+    price
+    title
+    updatedAt
+    description
+    createdAt
+    category {
+      id
+      name
+    }
+  }
+}

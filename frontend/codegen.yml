@@ -1,9 +1,24 @@
 overwrite: true
-schema: "http://localhost:4000/"
-documents: "**/*.{gql,graphql}"
+schema: 'http://localhost:4000/graphql'
+documents: '**/*.{gql,graphql}'
 generates:
-  ./src/graphql/generated/schema.ts:
+  src/generated/graphql.tsx:
     plugins:
-      - "typescript"
-      - "typescript-operations"
-      - "typescript-react-apollo"
+      - 'typescript'
+      - 'typescript-operations'
+      - 'typescript-react-apollo'
+  src/generated/schema.json:
+    plugins:
+      - 'introspection'
+  src/generated/fragment-matcher.ts:
+    plugins:
+      - 'fragment-matcher'
+  src/generated/enums.ts:
+    plugins:
+      - 'typescript'
+      - 'typescript-resolvers'
+config:
+  enumsAsTypes: false
+  namingConvention:
+    typeNames: change-case-all#pascalCase
+    enumValues: change-case-all#upperCase
