@@ -1,4 +1,5 @@
 import db from "./db";
+import Category from "./entities/category";
 import User from "./entities/user";
 import { Role } from "./enums/role.enums";
 
@@ -74,6 +75,20 @@ const main = async () => {
 	});
 
 	await admin.save();
+
+	const categories = [
+		{ name: "Science" },
+		{ name: "Mathématiques" },
+		{ name: "Littérature" },
+		{ name: "Histoire" },
+		{ name: "Informatique" },
+	];
+
+	for (const categoryData of categories) {
+		const category = new Category();
+		Object.assign(category, categoryData);
+		await category.save();
+	}
 
 	await db.destroy();
 

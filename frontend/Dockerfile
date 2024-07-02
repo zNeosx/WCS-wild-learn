@@ -10,6 +10,7 @@ COPY tsconfig.json ./tsconfig.json
 COPY next-env.d.ts ./next-env.d.ts
 COPY *.config.ts ./
 COPY *.config.js ./
+COPY *.config.mjs ./
 COPY postcss.config.mjs ./postcss.config.mjs
 COPY components.json ./components.json
 

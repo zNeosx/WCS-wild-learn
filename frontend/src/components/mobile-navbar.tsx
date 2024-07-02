@@ -15,7 +15,7 @@ export const MobileNavbar = () => {
 
   const routes = APP_ROUTES[role].sidebarRoutes;
   return (
-    <nav className="h-full flex items-center border-t shadow-sm">
+    <nav className="h-full flex items-center border-t shadow-sm bg-white">
       {routes.map(
         ({
           icon: Icon,

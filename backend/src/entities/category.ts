@@ -27,9 +27,8 @@ export default class Category extends BaseEntity {
 	@Field(() => String)
 	name: string;
 
-	@OneToMany(() => Course, (course) => course.attachements, {
+	@OneToMany(() => Course, (course) => course.category, {
 		cascade: true,
 	})
-	@Field(() => [Course])
 	courses: Course[];
 }

@@ -16,6 +16,7 @@ import { Role } from "../enums/role.enums";
 import User from "./user";
 import Attachement from "./attachement";
 import Category from "./category";
+import { ObjectId } from "../utils";
 
 @Entity()
 @ObjectType()
@@ -49,7 +50,7 @@ export default class Course extends BaseEntity {
 	isPublished: boolean;
 
 	@OneToMany(() => Attachement, (attachement) => attachement.course)
-	@Field(() => [Attachement])
+	@Field(() => [Attachement], { nullable: true })
 	attachements: Attachement[];
 
 	@ManyToOne(() => Category, (category) => category.courses, {
@@ -90,4 +91,7 @@ export class UpdateCourseInput {
 
 	@Field({ nullable: true })
 	isPublished?: boolean;
+
+	@Field(() => String, { nullable: true })
+	category?: string;
 }

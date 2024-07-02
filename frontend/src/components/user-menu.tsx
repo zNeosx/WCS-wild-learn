@@ -18,9 +18,9 @@ import { BadgeCheck, LogOut } from 'lucide-react';
 import { useRouter } from 'next/router';
 
 interface Props {
-  profile: User
+  profile: Omit<User, 'courses'>;
 }
-export const UserMenu = ({profile}: Props) => {
+export const UserMenu = ({ profile }: Props) => {
   const router = useRouter();
 
   const [logoutMutation, logoutMutationResult] = useLogoutMutation({
@@ -40,7 +40,6 @@ export const UserMenu = ({profile}: Props) => {
   const handleLogout = async () => {
     await logoutMutation();
   };
-
 
   const itemsClassName = 'gap-2';
   const iconsClassName = 'h-4 w-4';

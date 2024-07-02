@@ -1,10 +1,22 @@
 import AuthLayout from '@/components/auth-layout';
+import { CategoryForm } from '@/components/forms/course/category-form';
 import { DescriptionForm } from '@/components/forms/course/description-form';
+import { ImageForm } from '@/components/forms/course/image-form';
+import { PriceForm } from '@/components/forms/course/price-form';
 import { TitleForm } from '@/components/forms/course/title-form';
 import { Loader } from '@/components/loader';
 import { IconBadge } from '@/components/ui/icon-badge';
-import { useGetCourseByIdQuery } from '@/graphql/generated/schema';
-import { LayoutDashboard } from 'lucide-react';
+import {
+  useGetCategoriesQuery,
+  useGetCourseByIdQuery,
+} from '@/graphql/generated/schema';
+import { cp } from 'fs';
+import {
+  CircleDollarSign,
+  File,
+  LayoutDashboard,
+  ListChecks,
+} from 'lucide-react';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 
@@ -19,32 +31,55 @@ const CourseDetailsPage = () => {
 
   const skipQuery = !id;
 
-  const { data, loading, error } = useGetCourseByIdQuery({
+  const getCourseQuery = useGetCourseByIdQuery({
     variables: { getCourseByIdId: id as string },
     skip: skipQuery,
   });
+  const getCategoriesQuery = useGetCategoriesQuery();
 
   useEffect(() => {
-    if (isClient && !skipQuery && !loading && (!data || error)) {
+    if (
+      isClient &&
+      !skipQuery &&
+      !getCourseQuery.loading &&
+      (!getCourseQuery.data || getCourseQuery.error) &&
+      !getCategoriesQuery.loading &&
+      (!getCategoriesQuery.data || getCategoriesQuery.error)
+    ) {
       router.replace('/');
     }
-  }, [isClient, skipQuery, loading, data, error, router]);
+  }, [
+    isClient,
+    skipQuery,
+    getCourseQuery.loading,
+    getCourseQuery.data,
+    getCourseQuery.error,
+    getCategoriesQuery.loading,
+    getCategoriesQuery.data,
+    getCategoriesQuery.error,
+    router,
+  ]);
 
-  if (!isClient || skipQuery || loading) {
+  if (
+    !isClient ||
+    skipQuery ||
+    getCourseQuery.loading ||
+    getCategoriesQuery.loading
+  ) {
     return <Loader />;
   }
 
-  if (error) {
+  if (getCourseQuery.error || getCategoriesQuery.error) {
     return <div>Erreur de chargement du cours</div>;
   }
 
-  const course = data?.getCourseById;
+  const course = getCourseQuery.data?.getCourseById;
+
+  const categories = getCategoriesQuery.data?.getCategories;
 
   if (!course) {
     return null;
   }
-
-  console.log('course :>> ', course);
 
   const requiredFields = [
     course.title,
@@ -83,6 +118,46 @@ const CourseDetailsPage = () => {
                 description: course.description ?? '',
               }}
             />
+            <ImageForm courseId={course.id} initialData={course} />
+            <CategoryForm
+              courseId={course.id}
+              initialData={course}
+              options={
+                categories
+                  ? categories?.map((category) => ({
+                      label: category.name,
+                      value: category.id,
+                    }))
+                  : []
+              }
+            />
+          </div>
+          <div className="space-y-6">
+            <div>
+              <div className="flex items-center gap-x-2">
+                <IconBadge icon={ListChecks} />
+                <h2 className="text-xl">Chapitres du cours</h2>
+              </div>
+              <div>@Todo: Chapters</div>
+            </div>
+            <div>
+              <div className="flex items-center gap-x-2">
+                <IconBadge icon={CircleDollarSign} />
+                <h2 className="text-xl">Vends ton cours</h2>
+              </div>
+              <PriceForm
+                courseId={course.id}
+                initialData={{
+                  price: course.price ?? undefined,
+                }}
+              />
+            </div>
+            <div>
+              <div className="flex items-center gap-x-2">
+                <IconBadge icon={File} />
+                <h2 className="text-xl">Ressources et pièces jointes</h2>
+              </div>
+            </div>
           </div>
         </div>
       </div>

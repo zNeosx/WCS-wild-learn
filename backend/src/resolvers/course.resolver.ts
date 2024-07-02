@@ -6,11 +6,17 @@ import { Role } from "../enums/role.enums";
 import { GraphQLError } from "graphql";
 
 export default class CourseResolver {
-	// @Query(() => [Course])
-	// async courses(): Promise<Course[]> {
-	// 	return Course.find();
-	// }
-	//
+	@Query(() => [Course])
+	async getCourses(): Promise<Course[]> {
+		return await Course.find({
+			relations: {
+				user: true,
+				attachements: true,
+				category: true,
+			},
+		});
+	}
+
 	// @Query(() => Course)
 	// async course(@Arg("id") id: string): Promise<Course | undefined> {
 	// 	return Course.findOne(id);
@@ -59,7 +65,19 @@ export default class CourseResolver {
 
 		if (!exists) throw new GraphQLError("Course not found");
 
-		await Course.update(id, data);
+		const courseToUpdate = await Course.findOne({
+			where: { id },
+			relations: {
+				user: true,
+				attachements: true,
+				category: true,
+			},
+		});
+
+		if (!courseToUpdate) throw new GraphQLError("Course not found");
+
+		Object.assign(courseToUpdate, data);
+		await courseToUpdate.save();
 
 		return await Course.findOne({
 			where: { id },

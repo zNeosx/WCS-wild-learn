@@ -33,7 +33,6 @@ export default class Attachement extends BaseEntity {
 	@ManyToOne(() => Course, (course) => course.attachements, {
 		onDelete: "CASCADE",
 	})
-	@Field(() => Course)
 	course: Course;
 
 	@CreateDateColumn()
