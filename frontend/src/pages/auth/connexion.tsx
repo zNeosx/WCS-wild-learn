@@ -28,6 +28,9 @@ import {
   useSignInMutation,
 } from '@/graphql/generated/schema';
 import { APP_ROUTES } from '@/constants';
+import { useState } from 'react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { CircleAlert } from 'lucide-react';
 
 const formSchema = z.object({
   email: z
@@ -45,6 +48,7 @@ const formSchema = z.object({
 
 const Connexion = () => {
   const router = useRouter();
+  const [errorMessage, setErrorMessage] = useState('');
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -63,22 +67,16 @@ const Connexion = () => {
       // });
       router.push(APP_ROUTES[data.signin.role].afterLogin ?? '/');
     },
-    refetchQueries: [
-      {
-        query: GetUserProfileDocument,
-      },
-    ],
     onError: (err: ApolloError) => {
-      console.error(err);
-      // if (err.message.includes("not register")) {
-      // 	setErrorMessage("Aucun n'est lié à cette adresse email.");
-      // 	return;
-      // }
-      // if (err.message.includes("invalid password")) {
-      // 	setErrorMessage("Les identifiants sont incorrects.");
-      // 	return;
-      // }
-      // setErrorMessage(defaultErrorMessage);
+      if (err.message.includes('not register')) {
+        setErrorMessage("Aucun compte n'est lié à cette adresse email.");
+        return;
+      }
+      if (err.message.includes('invalid password')) {
+        setErrorMessage('Les identifiants sont incorrects.');
+        return;
+      }
+      setErrorMessage(err.message);
     },
   });
 
@@ -140,6 +138,13 @@ const Connexion = () => {
                     )}
                   />
                 </div>
+                {errorMessage && (
+                  <Alert variant={'destructive'}>
+                    <CircleAlert className="h-5 w-5" />
+                    <AlertTitle>Une erreur est survenue</AlertTitle>
+                    <AlertDescription>{errorMessage}</AlertDescription>
+                  </Alert>
+                )}
                 <Button type="submit" className="w-full">
                   Je me connecte
                 </Button>

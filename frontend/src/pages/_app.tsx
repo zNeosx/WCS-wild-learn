@@ -2,7 +2,7 @@ import '@/styles/globals.css';
 import { ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client';
 import type { AppProps } from 'next/app';
 
-const client = new ApolloClient({
+export const client = new ApolloClient({
   uri: 'http://localhost:4000/',
   cache: new InMemoryCache({
     addTypename: false,
