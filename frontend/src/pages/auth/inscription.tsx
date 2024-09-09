@@ -26,6 +26,9 @@ import { z } from 'zod';
 import { useSignUpMutation } from '@/graphql/generated/schema';
 import { useRouter } from 'next/router';
 import { ApolloError } from '@apollo/client';
+import { useState } from 'react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { CircleAlert } from 'lucide-react';
 
 const formSchema = z.object({
   lastName: z
@@ -59,6 +62,7 @@ const formSchema = z.object({
 
 const Inscription = () => {
   const router = useRouter();
+  const [errorMessage, setErrorMessage] = useState('');
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -80,12 +84,12 @@ const Inscription = () => {
       router.push('/auth/connexion');
     },
     onError: (err: ApolloError) => {
-      console.error(err);
-      // if (err.message.includes("already exist")) {
-      // 	setErrorMessage("Cette adresse email est déjà utilisée.");
-      // 	return;
-      // }
-      // setErrorMessage(defaultErrorMessage);
+      if (err.message.includes('already exist')) {
+        setErrorMessage('Cette adresse email est déjà utilisée.');
+        return;
+      }
+
+      setErrorMessage(err.message);
     },
   });
 
@@ -252,6 +256,13 @@ const Inscription = () => {
                     )}
                   />
                 </div>
+                {errorMessage && (
+                  <Alert variant={'destructive'}>
+                    <CircleAlert className="h-5 w-5" />
+                    <AlertTitle>Une erreur est survenue</AlertTitle>
+                    <AlertDescription>{errorMessage}</AlertDescription>
+                  </Alert>
+                )}
                 <Button type="submit" className="w-full">
                   Crée mon compte
                 </Button>

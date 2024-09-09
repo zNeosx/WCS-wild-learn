@@ -16,6 +16,7 @@ import React from 'react';
 import { cn } from '@/lib/utils';
 import { BadgeCheck, LogOut } from 'lucide-react';
 import { useRouter } from 'next/router';
+import { client } from '@/pages/_app';
 
 interface Props {
   profile: Omit<User, 'courses'>;
@@ -39,6 +40,7 @@ export const UserMenu = ({ profile }: Props) => {
 
   const handleLogout = async () => {
     await logoutMutation();
+    await client.clearStore();
   };
 
   const itemsClassName = 'gap-2';
